@@ -1,0 +1,61 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helpers ---
+    function isSignedIn() { return request.auth != null; }
+    function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
+    function isVerifiedUser() { return isSignedIn() && request.auth.token.email_verified == true; }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    function isValidId(id) { return id is string && id.size() <= 128; }
+
+    // --- User Rules ---
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false; // Users can't list other users private profiles
+      
+      function isValidUser(data) {
+        return data.keys().hasAll(['uid', 'displayName', 'email', 'coins', 'isCreator']) &&
+               data.uid == request.auth.uid &&
+               data.coins is int && data.coins >= 0 &&
+               data.isCreator is bool;
+      }
+
+      allow create: if isOwner(userId) && isValidUser(incoming()) && incoming().coins == 0;
+      allow update: if isOwner(userId) && isValidUser(incoming()) &&
+                    incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL', 'kycStatus', 'updatedAt']);
+    }
+
+    // --- Creator Rules (Publicly Readable) ---
+    match /creators/{creatorId} {
+      allow read: if isSignedIn();
+      allow write: if isOwner(creatorId) && 
+                    incoming().keys().hasAll(['userId', 'ratePerMinute', 'isOnline']) &&
+                    incoming().userId == request.auth.uid;
+    }
+
+    // --- Transaction Rules (Write restricted to server/system, but readable by owner) ---
+    match /transactions/{transactionId} {
+      allow get: if isSignedIn() && isOwner(existing().userId);
+      allow list: if isSignedIn() && isOwner(incoming().userId); // Simplified for query
+      
+      // In a real app, users shouldn't create transactions directly. 
+      // But for this proto, we allow purchase initiation.
+      allow create: if isSignedIn() && isOwner(incoming().userId) && 
+                    incoming().status == 'pending' &&
+                    incoming().type in ['purchase', 'spend', 'referral'];
+    }
+
+    // --- Call Rules ---
+    match /calls/{callId} {
+      allow read: if isSignedIn() && (isOwner(existing().callerId) || isOwner(existing().receiverId));
+      allow create: if isSignedIn() && isOwner(incoming().callerId);
+      allow update: if isSignedIn() && (isOwner(existing().callerId) || isOwner(existing().receiverId));
+    }
+  }
+}

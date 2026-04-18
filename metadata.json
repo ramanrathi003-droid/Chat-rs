@@ -1,0 +1,9 @@
+{
+  "name": "Chat RS",
+  "description": "Vibrant social platform with coin-based 1:1 voice/video calls, creator payouts, and real-time messaging.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ],
+  "majorCapabilities": []
+}

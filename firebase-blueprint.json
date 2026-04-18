@@ -1,0 +1,85 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Core user profile including financial and status info",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "coins": { "type": "integer" },
+        "isCreator": { "type": "boolean" },
+        "kycStatus": { "type": "string", "enum": ["pending", "verified", "rejected", "none"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "displayName", "email", "coins", "isCreator"]
+    },
+    "Creator": {
+      "title": "Creator",
+      "description": "Public profile details for call creators",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "bio": { "type": "string" },
+        "ratePerMinute": { "type": "integer" },
+        "isOnline": { "type": "boolean" },
+        "rating": { "type": "number" },
+        "totalMinutes": { "type": "integer" },
+        "earnings": { "type": "number" }
+      },
+      "required": ["userId", "ratePerMinute", "isOnline"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Record of coin purchases and spends",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "amount": { "type": "number" },
+        "coins": { "type": "integer" },
+        "type": { "type": "string", "enum": ["purchase", "spend", "payout", "referral"] },
+        "status": { "type": "string", "enum": ["pending", "completed", "failed"] },
+        "metadata": { "type": "object" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "coins", "type", "status", "createdAt"]
+    },
+    "Call": {
+      "title": "Call",
+      "description": "Log of a voice or video call session",
+      "type": "object",
+      "properties": {
+        "callerId": { "type": "string" },
+        "receiverId": { "type": "string" },
+        "startTime": { "type": "string", "format": "date-time" },
+        "endTime": { "type": "string", "format": "date-time" },
+        "durationSeconds": { "type": "integer" },
+        "costCoins": { "type": "integer" },
+        "status": { "type": "string", "enum": ["ongoing", "completed", "missed"] },
+        "type": { "type": "string", "enum": ["voice", "video"] }
+      },
+      "required": ["callerId", "receiverId", "status", "type"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Private user profiles"
+    },
+    "/creators/{creatorId}": {
+      "schema": "Creator",
+      "description": "Publicly visible creator data"
+    },
+    "/transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "Secure financial ledger"
+    },
+    "/calls/{callId}": {
+      "schema": "Call",
+      "description": "Private call logs"
+    }
+  }
+}

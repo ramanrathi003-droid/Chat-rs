@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --color-brand-primary: #FF0099;
+  --color-brand-secondary: #4932FF;
+  --color-brand-accent: #00FF95;
+  --color-gold: #FFD700;
+  --color-dark-bg: #0F0125;
+}
+
+:root {
+  background-color: var(--color-dark-bg);
+  color: #FFFFFF;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.vibrant-gradient-text {
+  background: linear-gradient(45deg, var(--color-brand-primary), var(--color-brand-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.vibrant-glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.vibrant-pill {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.vibrant-pill:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.balance-card-gradient {
+  background: linear-gradient(135deg, #6A11CB 0%, #2575FC 100%);
+}
+
